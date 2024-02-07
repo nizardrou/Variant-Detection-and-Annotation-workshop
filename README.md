@@ -7,12 +7,12 @@ Participants are expected to have some basic knowledge of mutation analysis as w
 
 Although the material and the methods are designed to cater for the NYU Abu Dhabi High Performance Computing environment, it is possible to run this workshop on any other system provided that the neccessary software is installed, and the data is uploaded to that environment. It will also be neccessary to change the input and output directories/files to accomodate such an environment.
 
-The workshop will take the format of case studies with the aim of discovering the underlying mutations in 3 separate patients that are exhibiting some disease phenotypes. Our starting point will raw sequencing files (Illumina paired end short reads), and throughout the course of the workshop, we will learn how to process and analyze the data so that we end up with annotated VCF (Variant Calling Format) files.
+The workshop will take the format of case studies with the aim of discovering the underlying mutations in 3 separate patients that are exhibiting some disease phenotypes. Our starting point will be raw sequencing files (Illumina paired end short reads), and throughout the course of the workshop, we will learn how to process and analyze the data so that we end up with annotated VCF (Variant Calling Format) files.
 
 More specifically, we will:
 
   1. Perform Quality Checking and Quality Trimming (QC/QT) on the raw data.
-  2. Align the data the reference human genome (version HG38).
+  2. Align the data to the reference human genome (version HG38).
   3. Carry out the necessary alignment post processing steps following established best practice guides.
   4. Call variants (SNPs and Indels) and filter the variants that have been called.
   5. Annotate the Variants and attempt to establish causative mutations.
