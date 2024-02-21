@@ -41,3 +41,20 @@ Before starting the workshop, you would've been assigned a dataset, either p1, p
 3. Once logged in, navigate to your personal "SCRATCH" directory `cd $SCRATCH`.
 4. Create a directory and change into it `mkdir variant_detection && cd variant_detection`.
 5. Copy the dataset that has been assigned to you (either p1, p2, or p3) e.g. for p1 `cp -r p1 .`.
+
+
+## The software stack
+As you might've imagined, this sort of analysis involves multiple steps, and multiple tools. The tools and their links are provided below in case you want to run this analysis on your own setup. Since we are using the HPC, we don't have to install any of them since they are already there!
+
+Just a quick note on installation. Whenever possible, we recommend using conda for installing and maintaining your software stack. Installing Bioinformatics software from source can be a painful experience sometimes, and conda takes care of most cases with relative ease.
+
+- FastQC
+- FastP
+- BWA
+- SAMTools
+- PICARD tools
+- GATK
+- Qualimap
+- SNPEff
+- SnpSift
+- ANNOVAR
