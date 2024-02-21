@@ -177,8 +177,24 @@ fastqc \
     -t 28
 ```
 
+Before running the script, let's take a few minutes to decipher what the flags that we have passed to the quality trimming tool FastP mean. To do that, run `fastp --help` on the command line (make sure that you have loaded or installed fastp first otherwise you will get a "command not found" error).
+```
+module purge
+module load all
+module load gencore/2
+module load fastp/0.20.1
+ fastp --help
+```
 
+Great! So now that we understand what the parameters mean, and how these commands are linked together (the output of the fastp quality trimmed reads are then passed to fastqc for checking), let's go ahead and run them.
 
+On the HPC `sbatch variant_detection.sh`
+
+On a standalone machine (not the HPC e.g. laptop) 
+```
+chmod 755 variant_detection.sh
+./variant_detection.sh
+```
 
 # VINU stuff
 
