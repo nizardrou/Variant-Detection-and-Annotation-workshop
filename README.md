@@ -33,14 +33,14 @@ Before starting the workshop, you would've been assigned a dataset, either p1, p
 1. Open the "Terminal" app and type `ssh NetID@jubail.abudhabi.nyu.edu`. Enter your NYU password when prompted and hit enter.
 2. Once logged in, navigate to your personal "SCRATCH" directory `cd $SCRATCH`.
 3. Create a directory and change into it `mkdir variant_detection && cd variant_detection`.
-4. Copy the dataset that has been assigned to you (either p1, p2, or p3) e.g. for p1 `cp -r p1 .`.
+4. Copy the dataset that has been assigned to you (either p1, p2, or p3) e.g. for p1 `cp -r /scratch/gencore/nd48/workshop_variant_detection/data/p1 .`.
 
 ### Connecting to the HPC using a Windows machine and copying the data.
 1. Open the "Putty" app, and fill out the fields as follows **Host name**=jubail.abudhabi.nyu.edu, **Port**=22, and then click on "Open".
 2. Enter your NetId, and your password when prompted.
 3. Once logged in, navigate to your personal "SCRATCH" directory `cd $SCRATCH`.
 4. Create a directory and change into it `mkdir variant_detection && cd variant_detection`.
-5. Copy the dataset that has been assigned to you (either p1, p2, or p3) e.g. for p1 `cp -r p1 .`.
+5. Copy the dataset that has been assigned to you (either p1, p2, or p3) e.g. for p1 `cp -r /scratch/gencore/nd48/workshop_variant_detection/data/p1 .`.
 
 
 ## The software stack
