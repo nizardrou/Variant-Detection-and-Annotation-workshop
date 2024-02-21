@@ -48,13 +48,24 @@ As you might've imagined, this sort of analysis involves multiple steps, and mul
 
 Just a quick note on installation. Whenever possible, we recommend using conda for installing and maintaining your software stack. Installing Bioinformatics software from source can be a painful experience sometimes, and conda takes care of most cases with relative ease.
 
-- FastQC
-- FastP
-- BWA
-- SAMTools
-- PICARD tools
-- GATK
-- Qualimap
-- SNPEff
-- SnpSift
-- ANNOVAR
+- FastQC [https://www.bioinformatics.babraham.ac.uk/projects/fastqc/]
+- FastP [https://github.com/OpenGene/fastp]
+- BWA [https://bio-bwa.sourceforge.net/]
+- SAMTools [https://www.htslib.org/]
+- PICARD tools [https://broadinstitute.github.io/picard/]
+- GATK [https://gatk.broadinstitute.org/hc/en-us]
+- Qualimap [http://qualimap.conesalab.org/]
+- SNPEff and SnpSift [https://pcingola.github.io/SnpEff/]
+- ANNOVAR [https://annovar.openbioinformatics.org/en/latest/]
+
+## File Formats
+We will be introducing a number of different file formats that are common in many types of omics analyses. Below is a list of these formats and links describing what they are, and although we will be covering all of these in the workshop and the accompanying slide deck, we thought it's a good idea for you to have a "Quick links" section to them.
+
+- FASTA [https://en.wikipedia.org/wiki/FASTA_format]
+- FASTQ [https://en.wikipedia.org/wiki/FASTQ_format]
+- SAM [https://en.wikipedia.org/wiki/SAM_(file_format)]
+- BAM [https://en.wikipedia.org/wiki/Binary_Alignment_Map]
+- VCF/GVCF [https://en.wikipedia.org/wiki/Variant_Call_Format]
+
+
+
