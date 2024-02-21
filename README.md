@@ -57,6 +57,7 @@ Just a quick note on installation. Whenever possible, we recommend using conda f
 - Qualimap [http://qualimap.conesalab.org/]
 - SNPEff and SnpSift [https://pcingola.github.io/SnpEff/]
 - ANNOVAR [https://annovar.openbioinformatics.org/en/latest/]
+- IGV [https://www.igv.org/]
 
 ## File Formats
 We will be introducing a number of different file formats that are common in many types of omics analyses. Below is a list of these formats and links describing what they are, and although we will be covering all of these in the workshop and the accompanying slide deck, we thought it's a good idea for you to have a "Quick links" section to them.
