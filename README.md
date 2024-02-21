@@ -116,3 +116,7 @@ For the purpose of this workshop, and so that we are all on the same page, we wi
 5. To the right of the **variant_detection.sh**, click on the menu and select "edit" from the drop down list.
 
 
+
+
+# VINU stuff
+
