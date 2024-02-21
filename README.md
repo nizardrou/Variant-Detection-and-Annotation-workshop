@@ -93,4 +93,16 @@ Unfortunately, all of the information of this case file has been lost! It is the
 By analyzing your given dataset, you will be able to call mutations. Through careful examination and filtering of the data, you should be able to successfully complete these tasks.
 
 
+## Step 1: Data quality checking and quality trimming
+The very first step in almost all genomics analyses involves checking the quality of the sequencing data and applying some initial quality filtering techniques (more on this in the slide deck).
+Sequencing data is not bullet-proof. There are quite a few issues that can affect your data including, bad calling and low quality score calls, contamination, duplication (optical and PCR), low yield, off-targets (for capture kits) etc. 
+In order to assess the quality of our data, as well filter our data to include only high quality sequencing reads, we will be using two popular tools, FastQC(for quality checking) and FastP(for quality filtering).
 
+The process is as follows,
+1. Run FastQC on the unfiltered data.
+2. Run the data through FastP to apply quality filtering.
+3. Run the data through FastQC again to determine if the filtering worked and how much data we lost.
+
+In the p1, p2, or p3 folder that you copied earlier, you will find a script called **variant_detection.sh**. This is meant to either be submitted in the HPC SLURM queue, or for you to run directly on your own setup (don't worry, we will show you how).
+
+You will need a text editor to edit this script as we go along
