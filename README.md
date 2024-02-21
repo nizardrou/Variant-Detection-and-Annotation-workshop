@@ -183,7 +183,7 @@ module purge
 module load all
 module load gencore/2
 module load fastp/0.20.1
- fastp --help
+fastp --help
 ```
 
 Great! So now that we understand what the parameters mean, and how these commands are linked together (the output of the fastp quality trimmed reads are then passed to fastqc for checking), let's go ahead and run them.
