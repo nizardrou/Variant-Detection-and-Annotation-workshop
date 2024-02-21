@@ -105,4 +105,13 @@ The process is as follows,
 
 In the p1, p2, or p3 folder that you copied earlier, you will find a script called **variant_detection.sh**. This is meant to either be submitted in the HPC SLURM queue, or for you to run directly on your own setup (don't worry, we will show you how).
 
-You will need a text editor to edit this script as we go along
+You will need a text editor to edit this script as we go along. Some popular ones include Brackets [https://brackets.io/] and Atom [https://atom-editor.cc/], or if you prefer to use the command line, vi is a popular one [https://www.redhat.com/sysadmin/introduction-vi-editor].
+
+For the purpose of this workshop, and so that we are all on the same page, we will be using the HPC interactive dashboard.
+1. Open the following link (you need an NYU HPC account for this, otherwise just use your own text editor) [https://ood.hpc.abudhabi.nyu.edu/pun/sys/dashboard].
+2. Log in to your NYU account when prompted.
+3. Click on **Files** and select **/scratch/NetID/** from the drop down menu.
+4. Click on the **variant_detection** folder, and then on your dataset folder (p1, p2, or p3).
+5. To the right of the **variant_detection.sh**, click on the menu and select "edit" from the drop down list.
+
+
