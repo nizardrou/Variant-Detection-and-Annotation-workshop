@@ -115,6 +115,68 @@ For the purpose of this workshop, and so that we are all on the same page, we wi
 4. Click on the **variant_detection** folder, and then on your dataset folder (p1, p2, or p3).
 5. To the right of the **variant_detection.sh**, click on the menu and select "edit" from the drop down list.
 
+The first few lines of the script are SLURM specific lines, and they are intended to be interpreted by the job scheduling program on the HPC (They start with #SBATCH). These lines instruct the HPC on how many CPUs we need, how much Memory and for how long we are intending to run this script. If you are not running this on the HPC, then these would simply be ignored when you execute your program.
+
+Following these lines, we have a number of module loading commands. These commands "load" the required software packages so that they will be available to us during our analysis. Again, if you are running this script on your own (not the HPC at NYUAD), then you will simply need to add Hashtags infront of them (e.g. #module load all instead of module load).
+
+After these initial "setting up" lines, we come to the main part of our analysis, and that is running FastQC, currently they look like this,
+```
+#fastqc \
+#    --extract p2_r1.fastq \
+#    -o raw_qc/read1qc/ \
+#    -t 28
+```
+So you need to delete the hashtags.
+
+The command above will run fastqc on the read1s, we also run the same command for read2s. Remember, these are illumina paired end sequencing reads.
+
+As you can see, we have passed additional arguments to these commands by using "flags", e.g. "-t 28" which instructs FastQC to ustilize 28 CPU threads (for faster processing). This number is not arbitrary and it needs to match your current setup, so if your machine has 8 CPUs, this will need to be adjusted accordingly. There are many flags for various software, and to find out what they mean, or to add additional flags, just type `fastqc --help`.
+
+Now go ahead and remove the remaining hashtags from the read2 fastqc command, the fastp command, and the fastqc commands following fastp. So your script should look like this now,
+```
+# Run FastQC on the unfiltered read 1
+fastqc \
+    --extract p2_r1.fastq \
+    -o raw_qc/read1qc/ \
+    -t 28
+
+# Run FastQC on the unfiltered read 2
+fastqc \
+    --extract p2_r2.fastq \
+    -o raw_qc/read2qc/ \
+    -t 28
+
+
+# Perform quality trimming using FastP using the default parameters and using the adapter trim Fasta file
+fastp \
+    -i p2_r1.fastq \
+    -I p2_r2.fastq \
+    -o fastp_p2_r1.fastq \
+    -O fastp_p2_r2.fastq \
+    --adapter_fasta adapter_trim.fa \
+    -h p2.fastp.html \
+    -R P2.sample_QT \
+    -w 16
+
+
+# Create the directories for the quality filtered FASTQ reports (produced using FastQC)
+mkdir -p qt_qc/read1qc
+mkdir qt_qc/read2qc
+
+
+# Run FastQC for the quality filtered read 1
+fastqc \
+    --extract fastp_p2_r1.fastq \
+    -o qt_qc/read1qc/ \
+    -t 28
+
+# Run FastQC for the quality filtere read 2
+fastqc \
+    --extract \
+    -o qt_qc/read2qc/ fastp_p2_r2.fastq \
+    -t 28
+```
+
 
 
 
