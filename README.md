@@ -64,6 +64,15 @@ We will be introducing a number of different file formats that are common in man
 - FASTA [https://en.wikipedia.org/wiki/FASTA_format]
 - FASTQ [https://en.wikipedia.org/wiki/FASTQ_format]
 - SAM [https://en.wikipedia.org/wiki/SAM_(file_format)]
+
+## The data
+The datasets that we will be using for this workshop are unfiltered FASTQ sequencing files. The are publicly available to download from the Short Read Archive (SRA [https://www.ncbi.nlm.nih.gov/sra]) using the following accessions ERR674822, SRR24555542, SRR5604284. Our p1, p2, and p3 datasets are reduced from their original size, meaning that not all of the sequencing reads are available. The reason for this is due to time constraints. Running the complete dataset takes much longer than the time we have during this workshop.
+
+As mentioned earlier, each one of you has been preallocated a particular dataset. Your task is to complete the analysis of this data and find out which one of the "case files" relates to the dataset that you have been given.
+
+### Case file A
+The data relating to this case file exhibits the following:
+- 
 - BAM [https://en.wikipedia.org/wiki/Binary_Alignment_Map]
 - VCF/GVCF [https://en.wikipedia.org/wiki/Variant_Call_Format]
 
