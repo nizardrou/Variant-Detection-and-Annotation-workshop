@@ -63,7 +63,11 @@ We will be introducing a number of different file formats that are common in man
 
 - FASTA [https://en.wikipedia.org/wiki/FASTA_format]
 - FASTQ [https://en.wikipedia.org/wiki/FASTQ_format]
-- SAM [https://en.wikipedia.org/wiki/SAM_(file_format)]
+- SAM [https://en.wikipedia.org/wiki/SAM_(file_format)] 
+- BAM [https://en.wikipedia.org/wiki/Binary_Alignment_Map]
+- VCF/GVCF [https://en.wikipedia.org/wiki/Variant_Call_Format]
+
+
 
 ## The data
 The datasets that we will be using for this workshop are unfiltered FASTQ sequencing files. The are publicly available to download from the Short Read Archive (SRA [https://www.ncbi.nlm.nih.gov/sra]) using the following accessions ERR674822, SRR24555542, SRR5604284. Our p1, p2, and p3 datasets are reduced from their original size, meaning that not all of the sequencing reads are available. The reason for this is due to time constraints. Running the complete dataset takes much longer than the time we have during this workshop.
@@ -71,10 +75,22 @@ The datasets that we will be using for this workshop are unfiltered FASTQ sequen
 As mentioned earlier, each one of you has been preallocated a particular dataset. Your task is to complete the analysis of this data and find out which one of the "case files" relates to the dataset that you have been given.
 
 ### Case file A
-The data relating to this case file exhibits the following:
-- 
-- BAM [https://en.wikipedia.org/wiki/Binary_Alignment_Map]
-- VCF/GVCF [https://en.wikipedia.org/wiki/Variant_Call_Format]
+This case file exhibits the following:
+- History of illness in the family but both parents are healthy.
+- Asthma like symptoms, and recurring lung infections.
+- Chronic constipation.
+
+### Case file B
+This case file exhibits the following:
+- No history of illness in the family.
+- Poor ability to perform excercises as well as poor coordination.
+- Signs of poor spinal development.
+- Blood tests indicated that Serum Creatinine Kinase levels were 12x the normal values.
+
+### Case file C
+Unfortunately, all of the information of this case file has been lost! It is therefore up to you to find out the disease associated with your dataset is.
+
+By analyzing your given dataset, you will be able to call mutations. Through careful examination and filtering of the data, you should be able to successfully complete these tasks.
 
 
 
