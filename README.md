@@ -21,3 +21,22 @@ By the end of this workshop, participants should be able to replicate these anal
 
 
 Enjoy!
+
+
+
+## Setting up the environment and copying the data
+We will be using the NYUAD High Performance Computing (HPC) cluster for this workshop, however, you can certainly run all of the analysis on any stand alone machine (server, personal laptop/Desktop etc.) provided that you have pre-installed the necessay software packages.
+
+Before starting the workshop, you would've been assigned a dataset, either p1, p2, or p3. Once you have completed your analysis on one of these datasets, you can certainy run the steps again for the other datasets.
+
+### Connecting to the HPC using a MAC/Linux machine and copying the data.
+1. Open the "Terminal" app and type `ssh NetID@jubail.abudhabi.nyu.edu`. Enter your NYU password when prompted and hit enter.
+2. Once logged in, navigate to your personal "SCRATCH" directory `cd $SCRATCH`.
+3. Create a directory and change into it `mkdir variant_detection && cd variant_detection`.
+4. Copy the dataset that has been assigned to you (either p1, p2, or p3) e.g. for p1 `cp -r p1 .`.
+
+### Connecting to the HPC using a Windows machine and copying the data.
+1. Open the "Terminal" app and type `ssh NetID@jubail.abudhabi.nyu.edu`. Enter your NYU password when prompted and hit enter.
+2. Once logged in, navigate to your personal "SCRATCH" directory `cd $SCRATCH`.
+3. Create a directory and change into it `mkdir variant_detection && cd variant_detection`.
+4. Copy the dataset that has been assigned to you (either p1, p2, or p3) e.g. for p1 `cp -r p1 .`.
