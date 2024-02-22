@@ -178,6 +178,8 @@ fastqc \
 ```
 
 Before running the script, let's take a few minutes to decipher what the flags that we have passed to the quality trimming tool FastP mean. To do that, run `fastp --help` on the command line (make sure that you have loaded or installed fastp first otherwise you will get a "command not found" error).
+
+Can you find out why we instructed FastP to only use 16 CPUs (and not 28) even though our machine has 28 CPUs available?
 ```
 module purge
 module load all
@@ -201,7 +203,49 @@ Once these steps complete, you should have two folder, **qt_qc** and **raw_qc**,
 ## Step 2: Aligning to the reference genome using BWA and post alignment processing with SAMTools
 So now that we have our quality trimmed reads, we will go ahead and align our reads to the reference human genome version Hg38, which is included in the GATK reference bundle (for more details and availability look here [https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle]).
 
-As with all the analysis steps, there are multiple tools to accomplish the same task, and the same can be said of alignment. Our approach is to use BWA mem, especially when it comes to aligning vs Hg38 and if you want to learn more as to why, have a look here []
+As with all the analysis steps, there are multiple tools to accomplish the same task, and the same can be said of alignment. Our approach is to use BWA mem, because it has been shown to be very accurate and efficient in mapping sequences of low divergence, as well as the ability to handle alternative mapping contigs in the human reference Hg38.
+
+The output of BWA mem is a SAM alignment file, and there is little to no benefit in working with the SAM file, the BAM formats is better (less space on disk as well as the ability to index it for fast processing). The SAM to BAM conversion, BAM sorting, and BAM indexing will be performed using SAMTools.
+
+### Alignment
+Open the variant_detection.sh file again, comment out (add hashtags) to the FastQC/FastP lines from the previous section, and uncomment (remove the hashtags) the BWA and SAMTools lines so that they look like this,
+```
+bwa mem \
+    -t 28 \
+    -M /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.fasta \
+    fastp_p1_r1.fastq \
+    fastp_p1_r2.fastq \
+    > p1.sam
+
+# Convert the BWA MEM SAM format to BAM using SAMTools
+samtools view \
+    -b \
+    -@ 28 \
+    p1.sam \
+    -o p1.bam
+
+
+# Delete the SAM file once the BAM has been produced
+rm p1.sam
+
+
+# Sort the BAM alignment file by coordinates (default) using SAMTools
+samtools sort \
+    -@ 28 \
+    p1.bam \
+    > p1.sorted.bam
+
+```
+As you can see, we supply the full path to the reference genome (after the -M flag), if you are running this on your own machine, then change the path to point to the location where you downloaded your reference.
+SAMTools is one of those important Bioinformatics software packages that we use on an almost daily basis. I would highly recommend that you spend sometime familiarizing yourself with the package.
+
+Before we go ahead and run these lines, let's decipher quickly what is happening.
+1. We are aligning the quality trimmed reads to the Hg38 reference genome using "BWA mem" and redirecting the output to a SAM file.
+2. We then use "SAMTools view" to convert the SAM to a BAM.
+3. Since we have a BAM, we no longer need the SAM, so we delete it with the "rm" command.
+4. Finally, we use "SAMTools sort" to **coordinate sort** the alignment (Can you find out what are the different types of sorting a BAM file?).
+
+
 
 # VINU stuff
 
