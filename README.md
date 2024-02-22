@@ -247,11 +247,40 @@ Before we go ahead and run these lines, let's decipher quickly what is happening
 
 
 
-# VCF Filtering and Other Resources
+# VCF Annotation Filtering and Other Resources
 
 
-[snpshift documentaion](http://pcingola.github.io/SnpEff/snpsift/filter/)
+## Tools for VCF Annotation
+
+[SnpEff](http://snpeff.sourceforge.net)
+
+[wAnnovar](http://wannovar.wglab.org)
+
+[VEP](https://asia.ensembl.org/Tools/VEP)
+
+[Franklin](https://franklin.genoox.com/home)
+
+[Moon](http://www.diploid.com/moon)
+
+
+## Variant Filtering
+
+[snpshift](http://pcingola.github.io/SnpEff/snpsift/filter/)
+
+[vcftools](https://vcftools.github.io/examples.html)
+
+[bcftools](https://samtools.github.io/bcftools/bcftools.html#filter)
+
+[gatk VariantFiltration](https://gatk.broadinstitute.org/hc/en-us/articles/360037434691-VariantFiltration)
+
+
+### Interpretation of Variants 
 
 [Standard and Guidelines for Variant Interpretation](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/)
+
+
+
+
+
 
 
