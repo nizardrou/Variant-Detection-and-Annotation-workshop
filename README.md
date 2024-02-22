@@ -305,7 +305,8 @@ We added some information to our BAM file using the picard AddOrReplaceReadGroup
 
 Let's breifly look at how the BAM file looks before adding the read groups and after (you can use the command below to quickly inspect any BAM for the presence of read groups),
 
-Extract the read groups from the BAM file before adding the read groups (in p1.sorted.bam for example) `samtools view -H p1.sorted.bam | grep '^@RG'`
+Extract the read groups from the BAM file before adding the read groups (in p1.sorted.bam for example) 
+`samtools view -H p1.sorted.bam | grep '^@RG'`
 You will see that the commands returns nothing, and that is because we did not add any read groups at that point.
 If we were to run the command aggain only this time supplying the bam with the read groups added, we will get,
 ```
@@ -318,6 +319,7 @@ Sequencing technologies sometimes introduce what are know as "Systematic errors"
 There are two main parts to this step of correcting and detecting these artefacts, detecting duplicate, and accounting for systematic errors.
 Duplicates that we are interested in are either PCR duplicates or Optical duplicates. PCR duplicates arise during the sample preperation and amplication stage before sequencing a library. Optical duplicates arise when a single amplification cluster is incorrectly detected as multiple cluster by the optics in the sequencing instrument.
 The PICARD command that we use to mitigate these sequencing duplicates is called MarkDuplicates, and below is a description of the tool from the Broad Institute, which explains how the command works [https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard],
+
 _The MarkDuplicates tool works by comparing sequences in the 5 prime positions of both reads and read-pairs in a SAM/BAM file. An BARCODE_TAG option is available to facilitate duplicate marking using molecular barcodes. After duplicate reads are collected, the tool differentiates the primary and duplicate reads using an algorithm that ranks reads by the sums of their base-quality scores (default method). The tool's main output is a new SAM or BAM file, in which duplicates have been identified in the SAM flags field for each read. Duplicates are marked with the hexadecimal value of 0x0400, which corresponds to a decimal value of 1024._
 
 Please note that by default, the tool only marks the duplicate reads, but does not remove them. This is because the PICAR/GATK software ecosystem is capable of reading these bitwise flags and interpreting them. If your downstream analysis tool(s) do not interpret these flags, then it would be better to "remove" the duplicates during this stage (by passing the appropriate --REMOVE_DUPLICATES flag). In addition to producing a BAM with the duplicates marked, MarkDuplicates also outputs a metrics file that summerizes the detection results.
