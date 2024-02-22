@@ -265,7 +265,7 @@ Before we go ahead and run these lines, let's decipher quickly what is happening
 
 ## Variant Filtering
 
-[snpshift](http://pcingola.github.io/SnpEff/snpsift/filter/)
+[snpsift](http://pcingola.github.io/SnpEff/snpsift/filter/)
 
 [vcftools](https://vcftools.github.io/examples.html)
 
