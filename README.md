@@ -246,6 +246,150 @@ Before we go ahead and run these lines, let's decipher quickly what is happening
 4. Finally, we use "SAMTools sort" to **coordinate sort** the alignment (Can you find out what are the different types of sorting a BAM file?).
 
 
+## Step 3: Post processing the BAM file with PICARD/GATK
+As we discussed in the introduction (see slide deck), The Broad Best Practise guides offer a "blueprint" as to how variant calling is ideally performed (at least in human samples). Before calling the variants from the alignments, it is important to get a handle, as well as correct, some of the errors that are caused by the sequencing technologies as well as the sequencing library preparation steps. We also need to add some additional information to our BAM file headers so that the file can be correctly processed by the variant caller, as well as allowing us the option to combine it with other samples (if we were performed joint genotyping, trio analysis, GWAS etc.).
+
+So, just like the previous section (alignment), let's start by openning our script using your prefered text editor, commenting the previous section (BWA and SAMTools), and uncomment the picard AddReadGroups, SAMTools index, picard MarkDuplicates, gatk BaseRecalibrator, and gatk ApplyBQSR. It should look like this,
+```
+# Add Read groups to the sorted BAM alignments using PICARD
+picard -Xmx80g AddOrReplaceReadGroups \
+    I=p1.sorted.bam \
+    O=p1.rg.sorted.bam \
+    RGID=1 \
+    RGLB=1 \
+    RGPL=ILLUMINA \
+    RGPU=1 \
+    RGSM=p1
+
+
+# Mark duplicates (PCR/Optical) in the BAM alignments using PICARD
+picard -Xmx80g MarkDuplicates \
+    M=p1.metrics.txt \
+    I=p1.rg.sorted.bam \
+    O=p1.md.sorted.bam
+
+
+# Run base quality score recalibrations using GATK's BQSR
+gatk --java-options "-Xmx80G" BaseRecalibrator \
+    -R /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.fasta \
+    -I p1.md.sorted.bam \
+    --known-sites /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.dbsnp138.vcf \
+    -O p1.recal_data.txt
+
+
+# Apply the recalibrations from the earlier step and produce a new BAM alignment file using GATK's ApplyBQSR
+gatk --java-options "-Xmx80G" ApplyBQSR \
+    -R /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.fasta \
+    -I p1.md.sorted.bam \
+    --bqsr-recal-file p1.recal_data.txt \
+    -O p1.rc.sorted.bam
+
+
+# Index the recalibrated BAM file using SAMTools
+samtools index \
+    -@ 28 \
+    p1.rc.sorted.bam
+```
+
+As you can see, at every step, we are producing a new BAM file, so it can become challenging trying to remember what is what! To avoid confusion, figure out a naming system that makes sense to you. For us, we tend to include the intials of the command that produced a given BAM (in addition to the sample name). E.g. "p1.rc.sorted.bam" refers to a recalibrated (rc) and coordinate sorted BAM file.
+
+Let's quickly figure out what happened in the steps above.
+
+### Adding Read Groups
+We added some information to our BAM file using the picard AddOrReplaceReadGroups command (Look at the SAM/BAM specifications page here for more information [https://samtools.github.io/hts-specs/]).
+- RGID=1 (This tag identifies which read group each read belongs to, so each read group's ID must be unique).
+- RGLB=1 (This tag identifies the library that the read groups belong to, this is useful when specifiying the your library is PCR-free for example).
+- RGPL=ILLUMINA (This tag specifies the sequencing platform/technology and can be useful in tunning specific systematic error profiles).
+- RGPU=1 The PU holds three types of information, the flowcell barcode, the sequencing lane, and the sample barcode.
+- RGSM=p1 This tag refers to the actual sample name (p1 in this case) and will uniquely identify the BAM alignments, especially when the BAMs have been merged.
+
+Let's breifly look at how the BAM file looks before adding the read groups and after (you can use the command below to quickly inspect any BAM for the presence of read groups),
+
+Extract the read groups from the BAM file before adding the read groups (in p1.sorted.bam for example) `samtools view -H p1.sorted.bam | grep '^@RG'`
+You will see that the commands returns nothing, and that is because we did not add any read groups at that point.
+If we were to run the command aggain only this time supplying the bam with the read groups added, we will get,
+```
+samtools view -H p2.rg.sorted.bam | grep '^@RG'
+@RG	ID:1	LB:1	PL:ILLUMINA	SM:p2	PU:1
+```
+
+### Marking Duplicates
+Sequencing technologies sometimes introduce what are know as "Systematic errors", that is, errors that are inherent in the technology. Luckily, these technologies have been around for years now, and we understand these errors (and their profiles), and hence, we can account for them and mitigate their impact.
+There are two main parts to this step of correcting and detecting these artefacts, detecting duplicate, and accounting for systematic errors.
+Duplicates that we are interested in are either PCR duplicates or Optical duplicates. PCR duplicates arise during the sample preperation and amplication stage before sequencing a library. Optical duplicates arise when a single amplification cluster is incorrectly detected as multiple cluster by the optics in the sequencing instrument.
+The PICARD command that we use to mitigate these sequencing duplicates is called MarkDuplicates, and below is a description of the tool from the Broad Institute, which explains how the command works [https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard],
+_The MarkDuplicates tool works by comparing sequences in the 5 prime positions of both reads and read-pairs in a SAM/BAM file. An BARCODE_TAG option is available to facilitate duplicate marking using molecular barcodes. After duplicate reads are collected, the tool differentiates the primary and duplicate reads using an algorithm that ranks reads by the sums of their base-quality scores (default method). The tool's main output is a new SAM or BAM file, in which duplicates have been identified in the SAM flags field for each read. Duplicates are marked with the hexadecimal value of 0x0400, which corresponds to a decimal value of 1024._
+
+Please note that by default, the tool only marks the duplicate reads, but does not remove them. This is because the PICAR/GATK software ecosystem is capable of reading these bitwise flags and interpreting them. If your downstream analysis tool(s) do not interpret these flags, then it would be better to "remove" the duplicates during this stage (by passing the appropriate --REMOVE_DUPLICATES flag). In addition to producing a BAM with the duplicates marked, MarkDuplicates also outputs a metrics file that summerizes the detection results.
+
+### Base Quality Score Recalibration
+GATK's BaseRecalibrator will then take the duplicate marked BAM file and will then attempt to detect (and correct) the second class of artefacts, systematic errors, and these are errors that the sequencing instrument makes when it detects or "calls" a sequenced nucleotide, as well as the Q score (or accuracy) associated with that call. Just to be clear though, BaseRecalibrator **DOES NOT** change the nucleotide calls, it adjusted the quality score associated with a given call.
+
+Since we don't like to repeat what has already been very nicely described by the developers themselves, below is the explaination from the Broad Institute (and the complete explaination of tool is here [https://gatk.broadinstitute.org/hc/en-us/articles/360035890531-Base-Quality-Score-Recalibration-BQSR]),
+_Base quality score recalibration (BQSR) is a process in which we apply machine learning to model these errors empirically and adjust the quality scores accordingly. For example we can identify that, for a given run, whenever we called two A nucleotides in a row, the next base we called had a 1% higher rate of error. So any base call that comes after AA in a read should have its quality score reduced by 1%. We do that over several different covariates (mainly sequence context and position in read, or cycle) in a way that is additive. So the same base may have its quality score increased for one reason and decreased for another.
+
+This allows us to get more accurate base qualities overall, which in turn improves the accuracy of our variant calls. To be clear, we can't correct the base calls themselves, i.e. we can't determine whether that low-quality A should actually have been a T -- but we can at least tell the variant caller more accurately how far it can trust that A. Note that in some cases we may find that some bases should have a higher quality score, which allows us to rescue observations that otherwise may have been given less consideration than they deserve. Anecdotally our impression is that sequencers are more often over-confident than under-confident, but we do occasionally see runs from sequencers that seemed to suffer from low self-esteem.
+
+This procedure can be applied to BAM files containing data from any sequencing platform that outputs base quality scores on the expected scale. We have run it ourselves on data from several generations of Illumina, SOLiD, 454, Complete Genomics, and Pacific Biosciences sequencers._
+
+Once BaseRecalibrator has finished and it has assessed our BAM file, we are then ready to apply the recalibrated scores and produce yet another BAM file (this is the last BAM file I promise!). We do this using GATK's ApplyBQSR tool, which takes as input the reaclibrated data table produced by BaseRecalibrator.
+
+The last step here is to then index this final recalibrated BAM file using "samtools index" to allow coordinate based searching and faster processing time.
+
+
+## Step 4: Alignment specific Quality Checking
+Now that we have our finalized BAM file, it is a good idea to run some alignment specific QC. We like the output of Qualimaps bamqc as it produces graphical file (HTMLs/PDFs) as well as text based files. It is also versatile and can accomodate various scenarios such WGS and capture kits efficiently.
+Please not that since this is a reduced dataset, some values might seem .... weird! More specifically, the coverage plots (since we are missing data from the whole genome and our reduced datasets only cover parts of a chromosome).
+Similar to previous sections, let's comment out the previous sections and just uncomment the qualimap part, it should look like this (for p1),
+```
+qualimap --java-mem-size=80G \
+    bamqc \
+    -bam p1.rc.sorted.bam \
+    -c \
+    -gd HUMAN \
+    -nt 28 \
+    -outdir BAMQC \
+    -outfile p1.bamqc.html \
+    -outformat HTML \
+    -sd
+
+
+# Zip the GVCF
+bgzip -@ 28 p1.g.vcf
+
+
+# Index the zipped GVCF
+tabix p1.g.vcf.gz
+```
+When you have done so, go ahead and execute the script again (either directly or through SLURM's sbatch). Can you figure out what the flags mean? The output should be under the "BAMQC" folder in your current directory.
+
+For comparison, we have added the p1 complete dataset qualimap report in this Github repo. Go ahead and download it and see how it compares with your report.
+
+
+## Step 5: Calling Variants (Finally!)
+Well, this is why we are all here! To call variants and identify mutations in our data, which should help us relate them to the appropriate case files.
+
+Again, there are multiple tools that can call variants, in fact, you will find that the best approaches, especially when dealing with clinical samples, is to use multiple variant callers. It might seem a bit redundant, but think of the implications, especially in a clinical diagnostic setting. This is in order to avoid what is know as "computational bias", since there is not single tool that can excel in every possible scenario, and using multiple software for the same task can help you mitigate that and identify "true positive" accurately.
+In our case we will be using GATK's HaplotypeCaller, so go ahead and comment the previous qualimap section, and uncomment the HaplotypeCaller section, and run the script. It should look like this,
+```
+gatk --java-options "-Xmx80G" HaplotypeCaller \
+    -R /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.fasta \
+    -ERC GVCF \
+    --dbsnp /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.dbsnp138.vcf \
+    -I p1.rc.sorted.bam \
+    -L chr7:80800000-85000000 \
+    -O p1.g.vcf
+```
+Let's understand the flags.
+- -R mentions the reference location (change this to reflect your setup similar to BWA mem earlier if you are running this one your own machine).
+- -ERC GVCF instructs the caller to output a "Genomic VCF" not just a VCF. A GVCF also contains information on the locations where our sample is homozygous to the reference (the same) and not just the differences. This is especially useful for joint analysis and cohort based analysis, but it does result in larger file sizes.
+- -I is the input BAM.
+- --dbsnp provides the path to the DBSNP file for Hg38 and the tool will annotate any know SNPs that match the records in the file/variant.
+- -L instructs the caller to only focus on the specified region. We do this in our case because of our reduced dataset, but if your data is WGS, you don't have to include this flag. You should use it if you have and exome or panel with a specific capture kit, which you can also supply as a BED file of regions.
+- -O the name of the output GVCF file.
+
+Finally, we want to zip the GVCF and index it using BGZIP and TABIX respectively in order to reduce the file sizes (GVCF can be huge, so always do this). The benefit of zipping and indexing is that the GVCF don't have to be uncompressed in order to processed by downstream tools, such as annotation tools.
+
 
 # VCF Annotation Filtering and Other Resources
 
