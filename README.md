@@ -195,6 +195,13 @@ On a standalone machine (not the HPC e.g. laptop)
 chmod 755 variant_detection.sh
 ./variant_detection.sh
 ```
+Once these steps complete, you should have two folder, **qt_qc** and **raw_qc**, as well as the quality trimmed fastq files for read 1 and 2 (e.g. fastp_p1.fastq and fastp_p2.fastq), and these will be the input for the next step of aligning the reads to the reference genome.
+
+
+## Step 2: Aligning to the reference genome using BWA and post alignment processing with SAMTools
+So now that we have our quality trimmed reads, we will go ahead and align our reads to the reference human genome version Hg38, which is included in the GATK reference bundle (for more details and availability look here [https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle]).
+
+As with all the analysis steps, there are multiple tools to accomplish the same task, and the same can be said of alignment. Our approach is to use BWA mem, especially when it comes to aligning vs Hg38 and if you want to learn more as to why, have a look here []
 
 # VINU stuff
 
