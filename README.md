@@ -320,7 +320,7 @@ There are two main parts to this step of correcting and detecting these artefact
 Duplicates that we are interested in are either PCR duplicates or Optical duplicates. PCR duplicates arise during the sample preperation and amplication stage before sequencing a library. Optical duplicates arise when a single amplification cluster is incorrectly detected as multiple cluster by the optics in the sequencing instrument.
 The PICARD command that we use to mitigate these sequencing duplicates is called MarkDuplicates, and below is a description of the tool from the Broad Institute, which explains how the command works [https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard],
 
-_The MarkDuplicates tool works by comparing sequences in the 5 prime positions of both reads and read-pairs in a SAM/BAM file. An BARCODE_TAG option is available to facilitate duplicate marking using molecular barcodes. After duplicate reads are collected, the tool differentiates the primary and duplicate reads using an algorithm that ranks reads by the sums of their base-quality scores (default method). The tool's main output is a new SAM or BAM file, in which duplicates have been identified in the SAM flags field for each read. Duplicates are marked with the hexadecimal value of 0x0400, which corresponds to a decimal value of 1024._
+>_The MarkDuplicates tool works by comparing sequences in the 5 prime positions of both reads and read-pairs in a SAM/BAM file. An BARCODE_TAG option is available to facilitate duplicate marking using molecular barcodes. After duplicate reads are collected, the tool differentiates the primary and duplicate reads using an algorithm that ranks reads by the sums of their base-quality scores (default method). The tool's main output is a new SAM or BAM file, in which duplicates have been identified in the SAM flags field for each read. Duplicates are marked with the hexadecimal value of 0x0400, which corresponds to a decimal value of 1024._
 
 Please note that by default, the tool only marks the duplicate reads, but does not remove them. This is because the PICAR/GATK software ecosystem is capable of reading these bitwise flags and interpreting them. If your downstream analysis tool(s) do not interpret these flags, then it would be better to "remove" the duplicates during this stage (by passing the appropriate --REMOVE_DUPLICATES flag). In addition to producing a BAM with the duplicates marked, MarkDuplicates also outputs a metrics file that summerizes the detection results.
 
@@ -329,7 +329,7 @@ GATK's BaseRecalibrator will then take the duplicate marked BAM file and will th
 
 Since we don't like to repeat what has already been very nicely described by the developers themselves, below is the explaination from the Broad Institute (and the complete explaination of tool is here [https://gatk.broadinstitute.org/hc/en-us/articles/360035890531-Base-Quality-Score-Recalibration-BQSR]), 
 
-_Base quality score recalibration (BQSR) is a process in which we apply machine learning to model these errors empirically and adjust the quality scores accordingly. For example we can identify that, for a given run, whenever we called two A nucleotides in a row, the next base we called had a 1% higher rate of error. So any base call that comes after AA in a read should have its quality score reduced by 1%. We do that over several different covariates (mainly sequence context and position in read, or cycle) in a way that is additive. So the same base may have its quality score increased for one reason and decreased for another. 
+>_Base quality score recalibration (BQSR) is a process in which we apply machine learning to model these errors empirically and adjust the quality scores accordingly. For example we can identify that, for a given run, whenever we called two A nucleotides in a row, the next base we called had a 1% higher rate of error. So any base call that comes after AA in a read should have its quality score reduced by 1%. We do that over several different covariates (mainly sequence context and position in read, or cycle) in a way that is additive. So the same base may have its quality score increased for one reason and decreased for another. 
 This allows us to get more accurate base qualities overall, which in turn improves the accuracy of our variant calls. To be clear, we can't correct the base calls themselves, i.e. we can't determine whether that low-quality A should actually have been a T -- but we can at least tell the variant caller more accurately how far it can trust that A. Note that in some cases we may find that some bases should have a higher quality score, which allows us to rescue observations that otherwise may have been given less consideration than they deserve. Anecdotally our impression is that sequencers are more often over-confident than under-confident, but we do occasionally see runs from sequencers that seemed to suffer from low self-esteem. 
 This procedure can be applied to BAM files containing data from any sequencing platform that outputs base quality scores on the expected scale. We have run it ourselves on data from several generations of Illumina, SOLiD, 454, Complete Genomics, and Pacific Biosciences sequencers._
 
@@ -390,6 +390,41 @@ Let's understand the flags.
 - -O the name of the output GVCF file.
 
 Finally, we want to zip the GVCF and index it using BGZIP and TABIX respectively in order to reduce the file sizes (GVCF can be huge, so always do this). The benefit of zipping and indexing is that the GVCF don't have to be uncompressed in order to processed by downstream tools, such as annotation tools.
+
+
+## Step 6: Annotating our Variant GVCF file
+The last step in our script is to annotate the variants that we discovered. We will be using two packages, SNPEff and SnpSift for this purpose. Go ahead and comment the previous sections (HaploTypeCaller, bgzip, and tabix), and uncomment the snpEff and SnpSift commands, and then run your script. They should look like this,
+```
+# Run SnpEff to annotate the variants effect in the GVCF
+snpEff -Xmx80g eff \
+    -nodownload \
+    -csvStats p1.stats.csv \
+    -o vcf \
+    -s p1.summary.html \
+    -lof GRCh38.105 p1.g.vcf.gz \
+    > p1.snpEff.g.vcf
+
+
+# Annotate the GVCF using SnpSift to add clinical variation (clinvar) annotations
+SnpSift annotate \
+    -tabix /scratch/Reference_Genomes/Public/SnpEff/GRCh38.105/clinvar.vcf.gz \
+    p1.snpEff.g.vcf \
+    > p1.snpEff.clinvar.g.vcf
+
+
+# Annotate the GVCF using SnpSift to add dbSNP IDs to the variants
+SnpSift annotate \
+    -tabix /scratch/Reference_Genomes/Public/SnpEff/GRCh38.105/Homo_sapiens_assembly38.dbsnp138.vcf.gz \
+    -dbsnp p1.snpEff.clinvar.g.vcf \
+    > p1.snpEff.clinvar.dbsnp.g.vcf
+```
+
+SnpEff will assess the impact of the variants in our data. It will look at the changes caused by the short variants (SNPs and Indel) and predict the effect at the amino acid level and how the codons change. Similar to other tools, it needs a database for the organism/genome version in question, which we have already download and supplied beforehand. Have a look at the snpEff software page to understand how to set it up for your own particular case. SnpEff will produce another GVCF with the annotations now included, and you can certainly bgzip and index this file (although we are not doing that here).
+
+SnpSift can also filter and annotate our SnpEff GVCF even further. We can supply multiple annotation levels to compare against. However, in our case, we are just providing the Clinical Variation database (Clinvar) and dbsnp.
+
+Once these have finished running, you are ready to proceed to the results interpretation steps, which will be summerized below.
+
 
 
 # VCF Annotation Filtering and Other Resources
