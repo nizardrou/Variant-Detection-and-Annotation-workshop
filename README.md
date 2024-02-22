@@ -251,6 +251,7 @@ Before we go ahead and run these lines, let's decipher quickly what is happening
 
 
 [snpshift documentaion](http://pcingola.github.io/SnpEff/snpsift/filter/)
-[Standard and Guidelines for Variant Interpretation](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/pdf/nihms697486.pdf)
-<img width="612" alt="image" src="https://github.com/nizardrou/Variant-Detection-and-Annotation-workshop/assets/61264459/4c869e87-4bac-42b6-abc9-be9db0caa5a9">
+
+[Standard and Guidelines for Variant Interpretation](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/)
+
 
