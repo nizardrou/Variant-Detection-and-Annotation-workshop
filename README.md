@@ -447,11 +447,40 @@ Once these have finished running, you are ready to proceed to the results interp
 
 [snpsift](http://pcingola.github.io/SnpEff/snpsift/filter/)
 
+```
+cat Variant.vcf | SnpSift filter "(DP >= 20)) | (QUAL >= 30 )" > filtered.vcf 
+
+```
+
 [vcftools](https://vcftools.github.io/examples.html)
+
+```
+vcftools --gzvcf $VCF_IN  --remove-indels --max-missing $MISS \
+
+--minQ $QUAL --min-meanDP $MIN_DEPTH --max-meanDP $MAX_DEPTH \
+
+--minDP $MIN_DEPTH --maxDP $MAX_DEPTH --recode --stdout  >$VCF_OUT 
+
+```
+[gatk VariantFiltration](https://gatk.broadinstitute.org/hc/en-us/articles/360037434691-VariantFiltration)
+
+Spliting the VCF to SNPS only
+```
+gatk -T SelectVariants -R ref -V raw_variants.vcf -selectType SNP -o snps.vcf
+
+```
+
+Variant Filtering 
+```
+gatk -T VariantFiltration -R ref -V snps.vcf --filterExpression ' QUAL < 30.0 || QD < 2.0 || FS > 60.0 || MQ < 40.0 ||SOR > 4.0' --filterName "basic_snp_filter" -o filtered_snps.vcf
+
+```
+
+In gatk variant filtering the variants are not filtered out but is labelled accordingly unlike snpsift makes subset(filtered) of the actual vcf
+
 
 [bcftools](https://samtools.github.io/bcftools/bcftools.html#filter)
 
-[gatk VariantFiltration](https://gatk.broadinstitute.org/hc/en-us/articles/360037434691-VariantFiltration)
 
 
 ### Interpretation of Variants 
