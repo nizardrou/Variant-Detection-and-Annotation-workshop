@@ -191,13 +191,19 @@ fastp --help
 Great! So now that we understand what the parameters mean, and how these commands are linked together (the output of the fastp quality trimmed reads are then passed to fastqc for checking), let's go ahead and run them. Here are a few options.
 
 1. Running the command by submitting to the SLURM queue.
-If you are within the directory containing the script "variant_detection.sh", simply type `sbatch variant_detection.sh`
+If you are within the directory containing the script "variant_detection.sh", simply type
+```
+sbatch variant_detection.sh
+```
 
-2. An interactive session on the HPC.
-To start an interactive session type "srun -n 28 -m  90G -t 4:00:00 --pty /bin/bash"
+3. An interactive session on the HPC.
+To start an interactive session type
+```
+srun -n 28 -m  90G -t 4:00:00 --pty /bin/bash
+```
 This will allocate a compute node to you, with 28 CPUs, 90GB of memory, and it will be available for 4 hours. Once the session starts, navigate to the directory containing your script (see above), and you can simply copy and paste the commands interactively.
 
-3. If you are using your own setup.
+5. If you are using your own setup.
 On a standalone machine (not the HPC e.g. laptop), and as long as you have installed the required software, you can just navigate to your directory containing the script, change the script permissions to make it executable, and run it, 
 ```
 chmod 755 variant_detection.sh
