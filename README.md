@@ -177,7 +177,7 @@ fastqc \
     -t 28
 ```
 
-You will also need to add the appropriate flag for trimming adaptors instead of **WE ALSO WANT TO TRIM ADAPTERS**).
+You will also need to add the appropriate flag for trimming adaptors (instead of **WE ALSO WANT TO TRIM ADAPTERS**).
 
 Before running the script, let's take a few minutes to decipher what the flags that we have passed to the quality trimming tool FastP mean. To do that, run `fastp --help` on the command line (make sure that you have loaded or installed fastp first otherwise you will get a "command not found" error).
 
