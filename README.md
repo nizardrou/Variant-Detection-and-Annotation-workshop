@@ -89,7 +89,7 @@ This case file exhibits the following:
 - Blood tests indicated that Serum Creatinine Kinase levels were 12x the normal values.
 
 ### Case file C
-Unfortunately, all of the information of this case file has been lost! It is therefore up to you to find out the disease associated with your dataset is.
+Unfortunately, all of the information of this case file has been lost! It is therefore up to you to find out what disease is associated with your dataset.
 
 By analyzing your given dataset, you will be able to call mutations. Through careful examination and filtering of the data, you should be able to successfully complete these tasks.
 
@@ -172,8 +172,8 @@ fastqc \
 
 # Run FastQC for the quality filtere read 2
 fastqc \
-    --extract \
-    -o qt_qc/read2qc/ fastp_p2_r2.fastq \
+    --extract fastp_p2_r2.fastq \
+    -o qt_qc/read2qc/ \
     -t 28
 ```
 
@@ -188,15 +188,24 @@ module load fastp/0.20.1
 fastp --help
 ```
 
-Great! So now that we understand what the parameters mean, and how these commands are linked together (the output of the fastp quality trimmed reads are then passed to fastqc for checking), let's go ahead and run them.
+Great! So now that we understand what the parameters mean, and how these commands are linked together (the output of the fastp quality trimmed reads are then passed to fastqc for checking), let's go ahead and run them. Here are a few options.
 
-On the HPC `sbatch variant_detection.sh`
+1. Running the command by submitting to the SLURM queue.
+If you are within the directory containing the script "variant_detection.sh", simply type `sbatch variant_detection.sh`
 
-On a standalone machine (not the HPC e.g. laptop) 
+2. An interactive session on the HPC.
+To start an interactive session type "srun -n 28 -m  90G -t 4:00:00 --pty /bin/bash"
+This will allocate a compute node to you, with 28 CPUs, 90GB of memory, and it will be available for 4 hours. Once the session starts, navigate to the directory containing your script (see above), and you can simply copy and paste the commands interactively.
+
+3. If you are using your own setup.
+On a standalone machine (not the HPC e.g. laptop), and as long as you have installed the required software, you can just navigate to your directory containing the script, change the script permissions to make it executable, and run it, 
 ```
 chmod 755 variant_detection.sh
 ./variant_detection.sh
 ```
+
+Please note that you will have to edit the script a bit to make it work on your own setup. First you will have to delete (or comment out) all of the lines in the begining that start with "module", since these are HPC specific. You will also have to tweak the CPU and memory limits to make sure they match your hardware setup.
+
 Once these steps complete, you should have two folder, **qt_qc** and **raw_qc**, as well as the quality trimmed fastq files for read 1 and 2 (e.g. fastp_p1.fastq and fastp_p2.fastq), and these will be the input for the next step of aligning the reads to the reference genome.
 
 
