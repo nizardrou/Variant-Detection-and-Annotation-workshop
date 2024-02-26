@@ -153,7 +153,7 @@ fastp \
     -I p2_r2.fastq \
     -o fastp_p2_r1.fastq \
     -O fastp_p2_r2.fastq \
-    --adapter_fasta adapter_trim.fa \
+    **WE ALSO WANT TO TRIM ADAPTERS** \
     -h p2.fastp.html \
     -R P2.sample_QT \
     -w 16
@@ -176,6 +176,8 @@ fastqc \
     -o qt_qc/read2qc/ \
     -t 28
 ```
+
+You will also need to add the appropriate flag for trimming adaptors instead of **WE ALSO WANT TO TRIM ADAPTERS**).
 
 Before running the script, let's take a few minutes to decipher what the flags that we have passed to the quality trimming tool FastP mean. To do that, run `fastp --help` on the command line (make sure that you have loaded or installed fastp first otherwise you will get a "command not found" error).
 
@@ -226,7 +228,7 @@ The output of BWA mem is a SAM alignment file, and there is little to no benefit
 Open the variant_detection.sh file again, comment out (add hashtags) to the FastQC/FastP lines from the previous section, and uncomment (remove the hashtags) the BWA and SAMTools lines so that they look like this,
 ```
 bwa mem \
-    -t 28 \
+    **WE WANT TO USE 28 CPUs** \
     -M /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.fasta \
     fastp_p1_r1.fastq \
     fastp_p1_r2.fastq \
@@ -251,6 +253,7 @@ samtools sort \
     > p1.sorted.bam
 
 ```
+We also want BWA to use 28 CPUS, find the appropriate flag (instead of **WE WANT TO USE 28 CPUs**).
 As you can see, we supply the full path to the reference genome (after the -M flag), if you are running this on your own machine, then change the path to point to the location where you downloaded your reference.
 SAMTools is one of those important Bioinformatics software packages that we use on an almost daily basis. I would highly recommend that you spend sometime familiarizing yourself with the package.
 
@@ -274,7 +277,7 @@ picard -Xmx80g AddOrReplaceReadGroups \
     RGLB=1 \
     RGPL=ILLUMINA \
     RGPU=1 \
-    RGSM=p1
+    **ALSO ADD THE READ GROUP SAMPLE NAME**
 
 
 # Mark duplicates (PCR/Optical) in the BAM alignments using PICARD
@@ -296,7 +299,7 @@ gatk --java-options "-Xmx80G" BaseRecalibrator \
 gatk --java-options "-Xmx80G" ApplyBQSR \
     -R /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.fasta \
     -I p1.md.sorted.bam \
-    --bqsr-recal-file p1.recal_data.txt \
+    **ADD THE BQSR RECALIBRATION FILE FROM THE PREVIOUS STEP HERE** \
     -O p1.rc.sorted.bam
 
 
@@ -305,6 +308,8 @@ samtools index \
     -@ 28 \
     p1.rc.sorted.bam
 ```
+Add the appropriate flag to the AddOrReplaceReadGroups command so that our sample name read group tag is added (instead of **ALSO ADD THE READ GROUP SAMPLE NAME**). This should be your sample name, i.e. p1, p2, or p3.
+Also, add the appropriate flag to supply the recalibrations metrics file to the ApplyBQSR command (instead of **ADD THE BQSR RECALIBRATION FILE FROM THE PREVIOUS STEP HERE**).
 
 As you can see, at every step, we are producing a new BAM file, so it can become challenging trying to remember what is what! To avoid confusion, figure out a naming system that makes sense to you. For us, we tend to include the intials of the command that produced a given BAM (in addition to the sample name). E.g. "p1.rc.sorted.bam" refers to a recalibrated (rc) and coordinate sorted BAM file.
 
@@ -392,10 +397,12 @@ gatk --java-options "-Xmx80G" HaplotypeCaller \
     -R /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.fasta \
     -ERC GVCF \
     --dbsnp /scratch/Reference_Genomes/Public/Vertebrate_mammalian/Homo_sapiens/GATK_reference_bundle_hg38/Homo_sapiens_assembly38.dbsnp138.vcf \
-    -I p1.rc.sorted.bam \
+    **ADD THE CORRECT INPUT BAM FILE HERE** \
     -L chr7:80800000-85000000 \
     -O p1.g.vcf
 ```
+Add the appropriate flag to supply the BAM alignment file (instead of **ADD THE CORRECT INPUT BAM FILE HERE**). Make sure you supply the correct BAM file as we have produced several of them at this point.
+
 Let's understand the flags.
 - -R mentions the reference location (change this to reflect your setup similar to BWA mem earlier if you are running this one your own machine).
 - -ERC GVCF instructs the caller to output a "Genomic VCF" not just a VCF. A GVCF also contains information on the locations where our sample is homozygous to the reference (the same) and not just the differences. This is especially useful for joint analysis and cohort based analysis, but it does result in larger file sizes.
@@ -416,7 +423,8 @@ snpEff -Xmx80g eff \
     -csvStats p1.stats.csv \
     -o vcf \
     -s p1.summary.html \
-    -lof GRCh38.105 p1.g.vcf.gz \
+    **WE WANT TO HAVE A LOSS OF FUNCTION TRACK HERE** \
+    GRCh38.105 p1.g.vcf.gz \
     > p1.snpEff.g.vcf
 
 
@@ -433,6 +441,8 @@ SnpSift annotate \
     -dbsnp p1.snpEff.clinvar.g.vcf \
     > p1.snpEff.clinvar.dbsnp.g.vcf
 ```
+
+Add the appropriate flag so that SnpEff adds a "loss of function" track to our annotations (instead of **WE WANT TO HAVE A LOSS OF FUNCTION TRACK HERE**).
 
 SnpEff will assess the impact of the variants in our data. It will look at the changes caused by the short variants (SNPs and Indel) and predict the effect at the amino acid level and how the codons change. Similar to other tools, it needs a database for the organism/genome version in question, which we have already download and supplied beforehand. Have a look at the snpEff software page to understand how to set it up for your own particular case. SnpEff will produce another GVCF with the annotations now included, and you can certainly bgzip and index this file (although we are not doing that here).
 
