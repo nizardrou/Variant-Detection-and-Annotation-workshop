@@ -254,6 +254,7 @@ samtools sort \
 
 ```
 We also want BWA to use 28 CPUS, find the appropriate flag (instead of **WE WANT TO USE 28 CPUs**).
+
 As you can see, we supply the full path to the reference genome (after the -M flag), if you are running this on your own machine, then change the path to point to the location where you downloaded your reference.
 SAMTools is one of those important Bioinformatics software packages that we use on an almost daily basis. I would highly recommend that you spend sometime familiarizing yourself with the package.
 
@@ -309,6 +310,7 @@ samtools index \
     p1.rc.sorted.bam
 ```
 Add the appropriate flag to the AddOrReplaceReadGroups command so that our sample name read group tag is added (instead of **ALSO ADD THE READ GROUP SAMPLE NAME**). This should be your sample name, i.e. p1, p2, or p3.
+
 Also, add the appropriate flag to supply the recalibrations metrics file to the ApplyBQSR command (instead of **ADD THE BQSR RECALIBRATION FILE FROM THE PREVIOUS STEP HERE**).
 
 As you can see, at every step, we are producing a new BAM file, so it can become challenging trying to remember what is what! To avoid confusion, figure out a naming system that makes sense to you. For us, we tend to include the intials of the command that produced a given BAM (in addition to the sample name). E.g. "p1.rc.sorted.bam" refers to a recalibrated (rc) and coordinate sorted BAM file.
